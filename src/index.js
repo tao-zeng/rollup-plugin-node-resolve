@@ -9,7 +9,7 @@ const CONSOLE_WARN = ( ...args ) => console.warn( ...args ); // eslint-disable-l
 
 export default function nodeResolve ( options ) {
 	options = options || {};
-
+	const alias = options.alias || {};
 	const skip = options.skip || [];
 	const useJsnext = options.jsnext === true;
 	const useModule = options.module !== false;
@@ -41,10 +41,9 @@ export default function nodeResolve ( options ) {
 			}
 
 			if ( skip !== true && ~skip.indexOf( id ) ) return null;
-
 			return new Promise( ( accept, reject ) => {
 				resolveId(
-					importee,
+					alias[importee] || importee,
 					{
 						basedir: dirname( importer ),
 						packageFilter ( pkg ) {
@@ -66,7 +65,7 @@ export default function nodeResolve ( options ) {
 					( err, resolved ) => {
 						if ( err ) {
 							if ( skip === true ) accept( false );
-							else reject( Error( `Could not resolve '${importee}' from ${normalize( importer )}` ) );
+							else reject( Error( `Could not resolve '${alias[importee] || importee}' from ${normalize( importer )}` ) );
 						} else {
 							if ( resolved === COMMONJS_BROWSER_EMPTY ) {
 								accept( ES6_BROWSER_EMPTY );
